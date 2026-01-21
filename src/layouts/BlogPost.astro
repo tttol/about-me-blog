@@ -39,11 +39,17 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.title {
 				margin-bottom: 1em;
 				padding: 1em 0;
-				text-align: center;
+				text-align: left;
 				line-height: 1;
 			}
 			.title h1 {
 				margin: 0 0 0.5em 0;
+			}
+			.title h1::before {
+				content: none;
+			}
+			.title h1 {
+				border-bottom: none;
 			}
 			.date {
 				margin-bottom: 0.5em;
@@ -51,6 +57,36 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			}
 			.last-updated-on {
 				font-style: italic;
+			}
+			.prose :global(h1)::before {
+				content: "# ";
+				color: rgba(var(--gray), 0.4);
+				font-weight: normal;
+			}
+			.prose :global(h2)::before {
+				content: "## ";
+				color: rgba(var(--gray), 0.4);
+				font-weight: normal;
+			}
+			.prose :global(h3)::before {
+				content: "### ";
+				color: rgba(var(--gray), 0.4);
+				font-weight: normal;
+			}
+			.prose :global(h4)::before {
+				content: "#### ";
+				color: rgba(var(--gray), 0.4);
+				font-weight: normal;
+			}
+			.prose :global(h5)::before {
+				content: "##### ";
+				color: rgba(var(--gray), 0.4);
+				font-weight: normal;
+			}
+			.prose :global(h6)::before {
+				content: "###### ";
+				color: rgba(var(--gray), 0.4);
+				font-weight: normal;
 			}
 		</style>
 	</head>

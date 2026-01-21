@@ -19,6 +19,12 @@ import HeaderLink from './HeaderLink.astro';
         margin: 0;
         font-size: 1em;
     }
+    h2::before {
+        content: none;
+    }
+    h2 {
+        border-bottom: none;
+    }
 
     h2 a,
     h2 a.active {
