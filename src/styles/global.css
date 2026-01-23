@@ -36,7 +36,9 @@ body {
 	margin: 0;
 	padding: 0;
 	text-align: left;
-	background: var(--bg-color);
+	background: linear-gradient(to right, #2a4a7a, #5e3a7a, #7a2a55);
+	background-attachment: fixed;
+	min-height: 100vh;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));

@@ -31,8 +31,10 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
         <style>
             .profile {
                 margin-bottom: 2em;
-                padding-bottom: 2em;
-                border-bottom: 3px solid rgb(var(--gray));
+                padding: 1.5em;
+                background: linear-gradient(135deg, rgba(var(--gray-light), 0.6), rgba(var(--gray-light), 0.3));
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
                 text-align: left;
             }
             .profile-row {
@@ -41,9 +43,10 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
                 gap: 1em;
             }
             .profile-icon {
-                width: 64px;
-                height: 64px;
+                width: 72px;
+                height: 72px;
                 border-radius: 50%;
+                border: 3px solid rgba(var(--gray), 0.5);
             }
             .profile-name {
                 margin: 0;
@@ -51,7 +54,7 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
                 color: rgb(var(--black));
             }
             .profile-description {
-                margin: 0.75em 0 0 0;
+                margin: 1em 0 0 0;
                 color: rgb(var(--gray));
             }
             .year-section {
@@ -99,7 +102,11 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
                     <Image src={meImage} alt="Toru Takahashi" class="profile-icon" width={64} height={64} />
                     <p class="profile-name">Toru Takahashi</p>
                 </div>
-                <p class="profile-description">Tech stuff, work things, and random life update</p>
+                <p class="profile-description">
+                - Software Engineer@PayPay Card Corporation<br/>
+                - AWS Community Builder<br/>
+                - more about me: <a href="https://about-tttol.link">https://about-tttol.link</a><br/>
+                </p>
             </section>
             <section>
                 {
