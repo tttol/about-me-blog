@@ -32,9 +32,10 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
             .profile {
                 margin-bottom: 2em;
                 padding: 1.5em;
-                background: linear-gradient(135deg, rgba(var(--gray-light), 0.6), rgba(var(--gray-light), 0.3));
+                background: linear-gradient(135deg, #1e3a5f, #2a4a7a, #3b5998);
+                border: 2px solid #5b7fc0;
                 border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 6px 20px rgba(59, 89, 152, 0.5);
                 text-align: left;
             }
             .profile-row {
@@ -52,10 +53,11 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
                 margin: 0;
                 font-size: 1.5em;
                 color: rgb(var(--black));
+                font-weight: bold;
             }
             .profile-description {
                 margin: 1em 0 0 0;
-                color: rgb(var(--gray));
+                color: #ffffff;
             }
             .year-section {
                 margin-bottom: 2em;
@@ -69,13 +71,23 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
                 list-style-type: none;
                 margin: 0;
                 padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 1em;
             }
             ul li {
-                border-bottom: 1px solid rgb(var(--gray));
+                background: linear-gradient(135deg, rgba(var(--gray-light), 0.6), rgba(var(--gray-light), 0.3));
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            ul li:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
             }
             ul li a {
                 display: block;
-                padding: 1em 0;
+                padding: 1.2em 1.5em;
                 text-decoration: none;
             }
             .title {
