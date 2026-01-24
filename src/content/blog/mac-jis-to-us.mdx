@@ -1,6 +1,34 @@
 ---
-title: 'mac-jis-to-us'
+title: 'JIS配列のMacにUS配列キーボードを使う'
 description: ''
-pubDate: '2026/01/25 06:43'
+pubDate: '2025/10/07 20:00'
 ---
+# はじめに
+私は普段US配列のキーボードを使ってコーディングを行うのですが、会社のPCなどではJIS配列のPCを支給されることがあります。そんな時、JISのキーボードにUS配列の外付けキーボードを接続し、US配列のPCとして利用する方法をまとめました。
 
+- Mac環境での話になります（筆者はMacBook Proで実施しました）
+- 筆者は外付けキーボードにHHKBを利用しています。が、HHKB以外でも同様のことは可能です。
+
+# Karabiner Elementsのインストール
+まずはKarabiner Elementsをインストールしましょう。
+Karabinerはキーボードの配置を自由にカスタマイズすることのできるツールです。
+
+https://karabiner-elements.pqrs.org/
+
+# JIS→USに変更
+インストールできたら、まずはKarabinerのVirtual KeyboardからKeyboard Typeを`ANSI`に設定します。
+
+![us1](/images/us1.jpeg)
+
+こうすることで、Macのキー配置がUS配列のものに内部的に変更されます。つまり、物理的な見た目はJIS配列だけど中身はUS配列になっているという状態になります。最終的には外付けキーボードから操作することをゴールとしているので、Mac自体のキーボードの状態はスルーします。。。
+
+# キー配置変更
+次に、キー配置を変更します。
+今回はHHKBを利用するので、HHKB向けの変更になります。
+
+![us2](/images/us2.jpeg)
+
+- BackSpaceと「｀」の位置を逆転
+- controlとcmd(左側)の位置を逆転
+
+以上で、JIS配列のMacをUS配列として利用することができるようになりました！
