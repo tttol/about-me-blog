@@ -13,5 +13,5 @@ pubDate: '${pubDate}'
 
 `;
 
-fs.writeFileSync(`src/content/blog/${slug}.md`, content);
-console.log(`Created: src/content/blog/${slug}.md`);
+fs.writeFileSync(`src/content/blog/${slug}.mdx`, content);
+console.log(`Created: src/content/blog/${slug}.mdx`);
