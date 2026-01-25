@@ -27,8 +27,18 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
 <!doctype html>
 <html lang="en">
     <head>
-        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} isHome={true} />
         <style>
+            .description {
+                text-align: center;
+                margin-bottom: 2em;
+            }
+            .description p {
+                font-size: 1.5em;
+                color: rgb(var(--black));
+                margin: 0;
+                letter-spacing: 0.05em;
+            }
             .profile {
                 margin-bottom: 2em;
                 padding: 1.5em;
@@ -109,6 +119,9 @@ const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
     <body>
         <Header />
         <main>
+            <section class="description">
+                <p>LET'S AGREE TO DISAGREE</p>
+            </section>
             <section class="profile">
                 <div class="profile-row">
                     <Image src={meImage} alt="Toru Takahashi" class="profile-icon" width={64} height={64} />
