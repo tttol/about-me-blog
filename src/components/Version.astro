@@ -1,0 +1,13 @@
+---
+import packageJson from '../../package.json';
+
+const version = packageJson.version;
+---
+
+<span class="version">v{version}</span>
+
+<style>
+    .version {
+        color: rgb(var(--gray));
+    }
+</style>
