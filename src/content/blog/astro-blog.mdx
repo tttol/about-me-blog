@@ -3,9 +3,11 @@ title: 'Astroでブログを自作する'
 description: ''
 pubDate: '2026/01/25 06:53'
 ---
+import LinkCard from '../../components/LinkCard.astro';
 
 # はじめに
 今までQiita, Zenn, noteをメインに記事を執筆していた私ですが、この度ついにブログサイト自体を自作しました。
+
 
 # モチベーション
 自分の発信媒体の棲み分けとして、
@@ -17,17 +19,23 @@ pubDate: '2026/01/25 06:53'
 こういう感じで運用してました。
 
 ですが、内容によって媒体をスイッチするのが面倒でした。各媒体によって執筆時のUIも異なります。例えばQiita, Zennはmarkdowndで書いてCLIコマンドで公開ができますが、noteは私の知る限りCLIからの公開はできません。最近私はなるべくCLIの中で生活できるように普段使いのツールをCLIに寄せていっているので、できればnoteもCLIから公開したい。
+
 また、Qiita CLIとZenn CLIも同じCLIとはいえ仕様は異なるので、ここのコンテキストスイッチも認知負荷になります。
 
 そんな矢先、Xで個人HPの自作が一部界隈で流行っている？っぽいポストを見かけました。
 
-<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">個人ホームページ時代来るんじゃね？っていうシグナルを各地から観測している。<br>コーディングエージェントがマイグレーションやメンテナンスを後押ししてくれるというのがあり、普通に楽しそうなので「個人HP作ろうもくもく会」をどこかでやりてぇよ...<br>冷静に考えて友達と相互リンクしたすぎるだろ。</p>&mdash; Kyohei - OSS, 外資IT (@labelmake) <a href="https://twitter.com/labelmake/status/2007041974352920609?ref_src=twsrc%5Etfw">January 2, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">個人ホームページ時代来るんじゃね？っていうシグナルを各地から観測している。<br />コーディングエージェントがマイグレーションやメンテナンスを後押ししてくれるというのがあり、普通に楽しそうなので「個人HP作ろうもくもく会」をどこかでやりてぇよ...<br />冷静に考えて友達と相互リンクしたすぎるだろ。</p>&mdash; Kyohei - OSS, 外資IT (@labelmake) <a href="https://twitter.com/labelmake/status/2007041974352920609?ref_src=twsrc%5Etfw">January 2, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">とりあえず個人HP作った！初ブログ更新！<br>—-<br>なぜ今、個人HPが面白いと思っているのか <a href="https://t.co/DhboaqyKC1">https://t.co/DhboaqyKC1</a></p>&mdash; Kyohei - OSS, 外資IT (@labelmake) <a href="https://twitter.com/labelmake/status/2013189697946681520?ref_src=twsrc%5Etfw">January 19, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">とりあえず個人HP作った！初ブログ更新！<br />—-<br />なぜ今、個人HPが面白いと思っているのか <a href="https://t.co/DhboaqyKC1">https://t.co/DhboaqyKC1</a></p>&mdash; Kyohei - OSS, 外資IT (@labelmake) <a href="https://twitter.com/labelmake/status/2013189697946681520?ref_src=twsrc%5Etfw">January 19, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <blockquote class="twitter-tweet"><p lang="ja" dir="ltr">せっかくブログを整備したのでシュッと書いてみた<a href="https://t.co/Fqpm7dbkEm">https://t.co/Fqpm7dbkEm</a></p>&mdash; 🍣maguro (@yusuktan) <a href="https://twitter.com/yusuktan/status/2007836198522565021?ref_src=twsrc%5Etfw">January 4, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 3つ目のポストのmaguroさんの記事を見て、自分にもできそうだなと思ったので、えいやで作ってみた次第です。
+
+
+ちなみに、Qiitaの執筆記事一覧はこちら。
+<LinkCard url="https://qiita.com/tttol777" />
+
 
 # インフラ構成
 インフラ面は全てAWSで賄っています。
@@ -44,7 +52,7 @@ pubDate: '2026/01/25 06:53'
 
 そして、全てのAWSリソースはCDKで管理しています。リポジトリはこちら。
 
-https://github.com/tttol/about-me-infra
+<LinkCard url="https://github.com/tttol/about-me-infra" />
 
 余談：AWS Amplifyでホスティングすることも考えたんですが、認証認可もDBも特に不要なのでAmplifyはリッチすぎるかなと思い、単純なS3 + CloudFrontの構成を採用しました。https://about-tttol.link をS3 + CloudFrontで既にホスティングしていたので、そこに乗っかりたかったというのもあります。
 
@@ -54,23 +62,30 @@ Astroに全面的にお世話になっています。
 
 https://astro.build/
 
-Astroとはフロントエンド向けのJavaScriptベースのライブラリです。Reactほどのリッチな機能は必要ないが、Vanilla JSで全部書くには大変…という絶妙な悩みを解決してくれるのがAstroです。今回の私のように、単純なブログを作成したい場合にぴったりなライブラリです。
+Astroとはフロントエンド向けのJavaScriptベースのライブラリです。Reactほどのリッチな機能は必要ないが、Vanilla JSで全部書くには大変…というどっちつかずな悩みを解決してくれるのがAstroです。今回の私のように、単純なブログを作成したい場合にぴったりなライブラリです。
 
 公式の[Getting Start](https://docs.astro.build/en/install-and-setup/)を参考に雛形を作成して、その後はLLMと壁打ちしながらUIを詰めていくだけで簡単にブログを作成することができます。
 
 アプリケーションサイドのソースコードは以下のリポジトリで管理してます。
 
-https://github.com/tttol/about-me-blog
+<LinkCard url="https://github.com/tttol/about-me-blog" />
 
 ### OG画像
 OG画像の生成にはsatoriというライブラリを利用しています。Vercelが作ったOSSのようです。
 
-https://github.com/vercel/satori
+<LinkCard url="https://github.com/vercel/satori" />
 
+JSXをSVGに変換し最終的にPNGに落とし込むという処理を内部でやっているようで、この処理にブログ記事のタイトルを渡すことで記事タイトルに応じたOG画像を動的に生成することができます。
 
+例えばこんな感じ。
+![og](/images/my-own-blog.png)
 
+改行位置がちょっと気になるが、まあ許容してます。[budoux](https://github.com/google/budoux)というライブラリを使うと改行の位置をいい感じにできるようですが、現状は手を出してません。そのうちやるかも。
 
 ### CI/CD
+記事を執筆したら自動でデプロイが走るようにCI/CDを組んでいます。
+
+仕組みは単純で、`npm run build`で生成したdistディレクトリをS3にアップロードするという2ステップです。
 
 Astro
 mdx
