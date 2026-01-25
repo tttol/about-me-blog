@@ -1,0 +1,79 @@
+---
+title: 'Astroでブログを自作する'
+description: ''
+pubDate: '2026/01/25 06:53'
+---
+
+# はじめに
+今までQiita, Zenn, noteをメインに記事を執筆していた私ですが、この度ついにブログサイト自体を自作しました。
+
+# モチベーション
+自分の発信媒体の棲み分けとして、
+- Qiita, Zenn
+    - 技術的な内容の発信
+- note
+    - 技術的な内容以外も扱う日記
+
+こういう感じで運用してました。
+
+ですが、内容によって媒体をスイッチするのが面倒でした。各媒体によって執筆時のUIも異なります。例えばQiita, Zennはmarkdowndで書いてCLIコマンドで公開ができますが、noteは私の知る限りCLIからの公開はできません。最近私はなるべくCLIの中で生活できるように普段使いのツールをCLIに寄せていっているので、できればnoteもCLIから公開したい。
+また、Qiita CLIとZenn CLIも同じCLIとはいえ仕様は異なるので、ここのコンテキストスイッチも認知負荷になります。
+
+そんな矢先、Xで個人HPの自作が一部界隈で流行っている？っぽいポストを見かけました。
+
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">個人ホームページ時代来るんじゃね？っていうシグナルを各地から観測している。<br>コーディングエージェントがマイグレーションやメンテナンスを後押ししてくれるというのがあり、普通に楽しそうなので「個人HP作ろうもくもく会」をどこかでやりてぇよ...<br>冷静に考えて友達と相互リンクしたすぎるだろ。</p>&mdash; Kyohei - OSS, 外資IT (@labelmake) <a href="https://twitter.com/labelmake/status/2007041974352920609?ref_src=twsrc%5Etfw">January 2, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">とりあえず個人HP作った！初ブログ更新！<br>—-<br>なぜ今、個人HPが面白いと思っているのか <a href="https://t.co/DhboaqyKC1">https://t.co/DhboaqyKC1</a></p>&mdash; Kyohei - OSS, 外資IT (@labelmake) <a href="https://twitter.com/labelmake/status/2013189697946681520?ref_src=twsrc%5Etfw">January 19, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">せっかくブログを整備したのでシュッと書いてみた<a href="https://t.co/Fqpm7dbkEm">https://t.co/Fqpm7dbkEm</a></p>&mdash; 🍣maguro (@yusuktan) <a href="https://twitter.com/yusuktan/status/2007836198522565021?ref_src=twsrc%5Etfw">January 4, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+3つ目のポストのmaguroさんの記事を見て、自分にもできそうだなと思ったので、えいやで作ってみた次第です。
+
+# インフラ構成
+インフラ面は全てAWSで賄っています。
+
+![architecture](/images/about-me.jpeg)
+
+- Hosting: S3, CloudFront
+- DNS: Route 53
+- 証明書: ACM
+
+このブログのドメインは`blog.about-tttol.link`ですが、元々`about-tttol.link`というドメインをすでに取得済みでした。なので今回のブログ制作ではサブドメインのblog.~~を設定しただけです。 https://about-tttol.link は私の自己紹介サイトを担っています。
+
+ちなみに、 `.link`は5ドル/年で買える格安のTLDなので、Route 53で安価にドメインを取得したい方にはおすすめです。自分も本当はtttol.comとかtttol.devとかにしたかったんですが、高いので諦めました。
+
+そして、全てのAWSリソースはCDKで管理しています。リポジトリはこちら。
+
+https://github.com/tttol/about-me-infra
+
+余談：AWS Amplifyでホスティングすることも考えたんですが、認証認可もDBも特に不要なのでAmplifyはリッチすぎるかなと思い、単純なS3 + CloudFrontの構成を採用しました。https://about-tttol.link をS3 + CloudFrontで既にホスティングしていたので、そこに乗っかりたかったというのもあります。
+
+# アプリケーション構成
+### Astro
+Astroに全面的にお世話になっています。
+
+https://astro.build/
+
+Astroとはフロントエンド向けのJavaScriptベースのライブラリです。Reactほどのリッチな機能は必要ないが、Vanilla JSで全部書くには大変…という絶妙な悩みを解決してくれるのがAstroです。今回の私のように、単純なブログを作成したい場合にぴったりなライブラリです。
+
+公式の[Getting Start](https://docs.astro.build/en/install-and-setup/)を参考に雛形を作成して、その後はLLMと壁打ちしながらUIを詰めていくだけで簡単にブログを作成することができます。
+
+アプリケーションサイドのソースコードは以下のリポジトリで管理してます。
+
+https://github.com/tttol/about-me-blog
+
+### OG画像
+OG画像の生成にはsatoriというライブラリを利用しています。Vercelが作ったOSSのようです。
+
+https://github.com/vercel/satori
+
+
+
+
+### CI/CD
+
+Astro
+mdx
+OGP
+
+# 感想
