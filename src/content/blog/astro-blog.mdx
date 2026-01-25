@@ -1,7 +1,7 @@
 ---
 title: 'Astroでブログを自作する'
 description: ''
-pubDate: '2026/01/25 06:53'
+pubDate: '2026/01/26 06:26'
 ---
 import LinkCard from '../../components/LinkCard.astro';
 
@@ -18,7 +18,7 @@ import LinkCard from '../../components/LinkCard.astro';
 
 こういう感じで運用してました。
 
-ですが、内容によって媒体をスイッチするのが面倒でした。各媒体によって執筆時のUIも異なります。例えばQiita, Zennはmarkdowndで書いてCLIコマンドで公開ができますが、noteは私の知る限りCLIからの公開はできません。最近私はなるべくCLIの中で生活できるように普段使いのツールをCLIに寄せていっているので、できればnoteもCLIから公開したい。
+ですが、内容によって媒体をスイッチするのが面倒でした。各媒体によって執筆時のUIも異なります。例えばQiita, Zennはmarkdownで書いてCLIコマンドで公開ができますが、noteは私の知る限りCLIからの公開はできません。最近私はなるべくCLIの中で生活できるように普段使いのツールをCLIに寄せていっているので、できればnoteもCLIから公開したい。
 
 また、Qiita CLIとZenn CLIも同じCLIとはいえ仕様は異なるので、ここのコンテキストスイッチも認知負荷になります。
 
@@ -57,20 +57,190 @@ import LinkCard from '../../components/LinkCard.astro';
 余談：AWS Amplifyでホスティングすることも考えたんですが、認証認可もDBも特に不要なのでAmplifyはリッチすぎるかなと思い、単純なS3 + CloudFrontの構成を採用しました。https://about-tttol.link をS3 + CloudFrontで既にホスティングしていたので、そこに乗っかりたかったというのもあります。
 
 # アプリケーション構成
-### Astro
+## Astro
 Astroに全面的にお世話になっています。
 
-https://astro.build/
+<LinkCard url="https://astro.build/" />
 
-Astroとはフロントエンド向けのJavaScriptベースのライブラリです。Reactほどのリッチな機能は必要ないが、Vanilla JSで全部書くには大変…というどっちつかずな悩みを解決してくれるのがAstroです。今回の私のように、単純なブログを作成したい場合にぴったりなライブラリです。
+Astroとはフロントエンド向けのJavaScriptベースのフレームワークです。Reactほどのリッチな機能は必要ないが、Vanilla JSで全部書くには大変…というどっちつかずな悩みを解決してくれるのがAstroです。今回の私のように、単純なブログを作成したい場合にぴったりなフレームワークです。
 
-公式の[Getting Start](https://docs.astro.build/en/install-and-setup/)を参考に雛形を作成して、その後はLLMと壁打ちしながらUIを詰めていくだけで簡単にブログを作成することができます。
+公式の[Getting Start](https://docs.astro.build/en/install-and-setup/)を参考に雛形を作成して、その後はLLMと壁打ちしながらUIを詰めていきました。
+
+Astroの面白いところは、ソースファイルの拡張子が.astroになるところです。例えばトップページは以下のindex.astroで表現されます。
+
+```astro
+
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import meImage from '../assets/me.jpg';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const posts = (await getCollection('blog')).sort(
+    (a, b) => b.data.pubDate.localeCompare(a.data.pubDate),
+);
+
+const postsByYear = posts.reduce((acc, post) => {
+    const year = post.data.pubDate.substring(0, 4);
+    if (!acc[year]) {
+        acc[year] = [];
+    }
+    acc[year].push(post);
+    return acc;
+}, {} as Record<string, typeof posts>);
+
+const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} isHome={true} />
+        <style>
+            .description {
+                text-align: center;
+                margin-bottom: 2em;
+            }
+            .description p {
+                font-size: 1.5em;
+                color: rgb(var(--black));
+                margin: 0;
+                letter-spacing: 0.05em;
+            }
+            .profile {
+                margin-bottom: 2em;
+                padding: 1.5em;
+                background: linear-gradient(135deg, #1e3a5f, #2a4a7a, #3b5998);
+                border: 2px solid #5b7fc0;
+                border-radius: 12px;
+                box-shadow: 0 6px 20px rgba(59, 89, 152, 0.5);
+                text-align: left;
+            }
+            .profile-row {
+                display: flex;
+                align-items: center;
+                gap: 1em;
+            }
+            .profile-icon {
+                width: 72px;
+                height: 72px;
+                border-radius: 50%;
+                border: 3px solid rgba(var(--gray), 0.5);
+            }
+            .profile-name {
+                margin: 0;
+                font-size: 1.5em;
+                color: rgb(var(--black));
+                font-weight: bold;
+            }
+            .profile-description {
+                margin: 1em 0 0 0;
+                color: #ffffff;
+            }
+            .year-section {
+                margin-bottom: 2em;
+            }
+            .year-header {
+                font-size: 1.5em;
+                color: rgb(var(--black));
+                margin-bottom: 0.5em;
+            }
+            ul {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 1em;
+            }
+            ul li {
+                background: linear-gradient(135deg, rgba(var(--gray-light), 0.6), rgba(var(--gray-light), 0.3));
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            ul li:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            }
+            ul li a {
+                display: block;
+                padding: 1.2em 1.5em;
+                text-decoration: none;
+            }
+            .title {
+                margin: 0;
+                color: rgb(var(--black));
+                line-height: 1.4;
+            }
+            .date {
+                margin: 0.5em 0 0 0;
+                color: rgb(var(--gray));
+                font-size: 0.875em;
+            }
+            ul li a:hover .title,
+            ul li a:hover .date {
+                color: var(--accent);
+            }
+        </style>
+    </head>
+    <body>
+        <Header />
+        <main>
+            <section class="description">
+                <p>LET'S AGREE TO DISAGREE</p>
+            </section>
+            <section class="profile">
+                <div class="profile-row">
+                    <Image src={meImage} alt="Toru Takahashi" class="profile-icon" width={64} height={64} />
+                    <p class="profile-name">Toru Takahashi</p>
+                </div>
+                <p class="profile-description">
+                - Software Engineer@PayPay Card Corporation<br/>
+                - AWS Community Builder<br/>
+                - more about me: <a href="https://about-tttol.link">https://about-tttol.link</a><br/>
+                </p>
+            </section>
+            <section>
+                {
+                    years.map((year) => (
+                        <div class="year-section">
+                            <h2 class="year-header">{year}</h2>
+                            <ul>
+                                {postsByYear[year].map((post) => (
+                                    <li>
+                                        <a href={`/blog/${post.id}/`}>
+                                            <h4 class="title">{post.data.title}</h4>
+                                            <p class="date">
+                                                <FormattedDate date={post.data.pubDate} />
+                                            </p>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))
+                }
+            </section>
+        </main>
+        <Footer />
+    </body>
+</html>
+```
+
+`---`でJSとHTMLを区切るところが独特な表現ですが、基本的にはReact.jsのJSXの書きっぷりと酷似しているので読みやすいですね。Astroではコンポーネントは.astroファイルで書いて、複雑なロジックは.tsファイルを別途作成してそこに実装していくスタイルです。例えばOG画像を生成するロジックは以下のようにtsファイルで書いています。
+
+https://github.com/tttol/about-me-blog/blob/main/src/pages/og/%5B...slug%5D.png.ts
 
 アプリケーションサイドのソースコードは以下のリポジトリで管理してます。
 
 <LinkCard url="https://github.com/tttol/about-me-blog" />
 
-### OG画像
+## OG画像
 OG画像の生成にはsatoriというライブラリを利用しています。Vercelが作ったOSSのようです。
 
 <LinkCard url="https://github.com/vercel/satori" />
@@ -80,15 +250,25 @@ JSXをSVGに変換し最終的にPNGに落とし込むという処理を内部�
 例えばこんな感じ。
 ![og](/images/my-own-blog.png)
 
-改行位置がちょっと気になるが、まあ許容してます。[budoux](https://github.com/google/budoux)というライブラリを使うと改行の位置をいい感じにできるようですが、現状は手を出してません。そのうちやるかも。
+改行位置がちょっと気になりますが、まあ許容してます。[budoux](https://github.com/google/budoux)というライブラリを使うと改行の位置をいい感じにできるようなので、そのうちやるかもしれません。
 
-### CI/CD
-記事を執筆したら自動でデプロイが走るようにCI/CDを組んでいます。
+## CI/CD
+記事を執筆してGitHubリポジトリにPUSHしたら、自動でブログが更新されるようにGitHub Actions（GHA）でCI/CDを組んでいます。
 
-仕組みは単純で、`npm run build`で生成したdistディレクトリをS3にアップロードするという2ステップです。
+仕組みは単純で、`npm run build`で生成したdistディレクトリをS3にアップロードしています。GHAからAWSの認証を通すためにGitHub OIDCプロバイダーという仕組みを利用しています。これについては過去に別の記事で書いたことがあるのでそちらを参考にしてもらえればと。
 
-Astro
-mdx
-OGP
+<LinkCard url="https://qiita.com/tttol777/items/7c56aaac7e13d99ae235" />
 
 # 感想
+まだまだ荒削りな部分はありますが、全体として満足のいくものが出来上がったと思ってます。ブログ内記事検索やRSSなど、追加したい機能はいくつかあるので今後気が向いたらアップデートしていきます。
+
+今まで使っていたQiitaなどをどうするかはまだ決めかねています。個人ブログを作ったものの、やっぱりQiitaに投稿を続けるかもしれませんし、個人ブログに一本化してQiitaに書いた記事を全て個人ブログにお引越しする可能性もあります。ただ確実に言えるのは、noteの利用はもうやめようかなと思っていて、今までnoteに不定期でUPしていた駄文は全てこっちのブログで発信するつもりです。（既存のnote記事もいくつかはお引越し済みです。）冒頭にも書きましたが、やっぱりCLIから記事書きたいんですよね。
+
+あと、ブログを自作するメリットとして、サイトの全てを自分でコントロールできる点がありますね。
+UIで気に入らないところがあればCSSを直せば良いし、バックエンドのロジックもいじり放題です。自分好みの最強のブログを作ることができます。
+
+Vimとかもそうですが、設定を自分で好きにいじることができるものは良いですね。「ここをいじったらどうなるんだろう？」を何度も繰り返してモノを作っていく過程はプログラマーとしてワクワクします。
+
+今後も時間を見つけて少しずつサイトをブラッシュアップしていきますので、たまに覗いてやってください。
+
+それでは。
