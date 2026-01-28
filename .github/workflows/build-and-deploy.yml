@@ -1,5 +1,6 @@
 name: Build and deploy to S3
 
+# triggers
 on:
   push:
     branches:
