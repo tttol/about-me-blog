@@ -16,3 +16,5 @@ https://blog.about-tttol.link/
 npm run new "My New Article"
 ```
 This creates `src/content/blog/my-new-article.md` with frontmatter (title, pubDate) auto-filled.
+## Publish
+A new article will be published automatically when merged into main branch.
