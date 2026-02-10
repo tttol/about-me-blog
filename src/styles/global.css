@@ -28,7 +28,7 @@ body {
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));
-	font-size: 20px;
+	font-size: 17px;
 	line-height: 1.7;
 }
 main {
@@ -120,10 +120,22 @@ hr {
 }
 @media (max-width: 720px) {
 	body {
-		font-size: 18px;
+		font-size: 17px;
 	}
 	main {
 		padding: 1em;
+	}
+	h1 {
+		font-size: 22pt;
+	}
+	h2 {
+		font-size: 19pt;
+	}
+	h3 {
+		font-size: 17pt;
+	}
+	h4 {
+		font-size: 15pt;
 	}
 }
 
