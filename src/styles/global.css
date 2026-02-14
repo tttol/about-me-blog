@@ -89,6 +89,15 @@ input {
 }
 table {
 	width: 100%;
+	border-collapse: collapse;
+}
+th,
+td {
+	border: 1px solid rgba(var(--gray), 0.4);
+	padding: 0.5em 0.75em;
+}
+th {
+	background-color: rgba(var(--gray), 0.3);
 }
 img {
 	max-width: 100%;

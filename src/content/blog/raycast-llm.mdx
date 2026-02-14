@@ -1,0 +1,78 @@
+---
+title: 'RaycastからClaude Code/Codex CLIを呼び出す方法'
+description: ''
+pubDate: '2026/02/15 06:07'
+---
+# TL;DR
+RaycastのScript CommandsからClaude Code/Codex CLIを呼び出すシェルを実行するようにしました。
+
+# はじめに
+自分は普段私用PCではClaude Code、仕事PCではCodex CLI(以下codexと呼ぶ)をよく使います。この2つはどちらもCLIツールなのでターミナル(私の場合はWezTerm)を開く必要があります。このターミナルを開くというワンクッション動作をなくすために、RaycastというMacのランチャーツールからClaude CodeまたはCodex CLIを直接実行する方法を考えました。
+
+# デモ
+こんな感じです。
+![demo](/images/raycast.gif)
+
+# 実装方法
+RaycastのScript Commandsという機能を使います。Script CommandsとはRaycastからシェルスクリプトを実行することができる機能です。
+https://www.raycast.com/blog/getting-started-with-script-commands
+
+
+Claude Codeを呼び出すために、以下のシェルスクリプトを作成します。
+```bash
+#!/bin/bash
+
+# @raycast.schemaVersion 1
+# @raycast.title cc
+# @raycast.mode silent
+# @raycast.packageName Developer Tools
+# @raycast.icon 🤖
+# @raycast.argument1 { "type": "text", "placeholder": "prompt", "optional": true }
+
+if [ -n "$1" ]; then
+  wezterm start -- zsh -ic "cd ~/Documents/tmp/claude-sandbox; claude \"$1\"; exec zsh"
+else
+  wezterm start -- zsh -ic "cd ~/Documents/tmp/claude-sandbox; claude; exec zsh"
+fi
+```
+
+コメントに書いているパラメータは以下の通りです。
+| パラメータ | 説明 |
+| --- | --- |
+| `@raycast.schemaVersion` | Script Commandsのスキーマバージョン。現時点では`1`を指定 |
+| `@raycast.title` | Raycastの検索バーに入力するコマンド名 |
+| `@raycast.mode` | 実行モード。`silent`はRaycastウィンドウを閉じた後にHUDトーストで最後の1行を表示する。他に`compact`(トースト通知で最後の1行を表示)、`fullOutput`(ターミナルのように全出力を表示)、`inline`(コマンドアイテムに最初の1行を直接表示し`refreshTime`で自動更新)がある |
+| `@raycast.packageName` | コマンドのカテゴリ名。Raycast上でのグルーピングに使われる |
+| `@raycast.icon` | Raycast上で表示されるアイコン。絵文字やファイルパスを指定可能 |
+| `@raycast.argument1` | コマンドの引数定義。`type`で型、`placeholder`で入力欄のプレースホルダー、`optional`で任意入力かどうかを指定する。`argument1`〜`argument3`まで定義可能 |
+
+`cd ~/Documents/tmp/claude-sandbox;`の部分は適宜変更してください。自分はこの機能専用のディレクトリを切りました。
+
+Codex CLIの場合はこちらです。
+```bash
+#!/bin/bash
+
+# @raycast.schemaVersion 1
+# @raycast.title codex
+# @raycast.mode silent
+# @raycast.packageName Developer Tools
+# @raycast.icon 🧠
+# @raycast.argument1 { "type": "text", "placeholder": "prompt", "optional": true }
+
+if [ -n "$1" ]; then
+  wezterm start -- zsh -ic "cd ~/tmp/codex-sandbox; codex \"$1\"; exec zsh"
+else
+  wezterm start -- zsh -ic "cd ~/tmp/codex-sandbox; codex; exec zsh"
+fi
+```
+
+このシェルスクリプトをRaycast側に登録します。
+Raycastの設定画面(⌘+,)→Extensions→Scriptsタブ からScript Commandsを選択し、先ほどのシェルスクリプトが保存されているパスを指定します。
+![raycast.png](/images/raycast.png)
+
+# 動作確認
+ここまでできれば、Raycastから`cc`と入力するとClaude Codeが実行できるようになるはずです。
+（`codex`と入力するとCodex CLIが実行可能）
+
+# 雑感
+RaycastのScript Commandsは他にも応用を利かせることができそうな予感がします。シェルスクリプトは基本的にCLI上のことはなんでもできますし。他にも思いついたらまたブログにしようと思います。
