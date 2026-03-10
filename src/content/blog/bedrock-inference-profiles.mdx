@@ -1,0 +1,18 @@
+---
+title: 'bedrock-inference-profiles'
+description: ''
+pubDate: '2026/03/10 06:08'
+---
+- オンデマンドスループット
+    - 旧式
+    - 単純にLLMモデルを呼び出すだけ。負荷分散は考えない。
+- Inference Profiles
+    - リージョン単位で負荷分散を自動で行う。
+    - prefixにusなどのリージョン識別子をつける
+    - スロットりんぐが起きにくい（リージョンで負荷分散するから）
+    - カスタムプロファイルを作って、タグによるコスト請求を設定可能。
+- Inference Profilesが出て以降のモデルはオンデマンドで呼び出し不可能。Inferenceを強要される。
+```
+Invocation of model ID anthropic.claude-haiku-4-5-20251001-v1:0 with on-demand throughput isn’t supported. Retry your request with the ID or ARN of an inference profile that contains this model.
+```
+
