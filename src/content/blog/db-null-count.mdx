@@ -1,0 +1,83 @@
+---
+title: 'SQLでIFを使う時はNULLに敏感になるべき'
+description: ''
+pubDate: '2026/03/15 06:18'
+---
+# はじめに
+RDBMSに対してSQLでCASE WHENやIFなどを使って何かを集計するとき、結果がNULLになるケースに注意しないといけないよって話です。
+
+
+# 自分がハマったケース
+例示にPostgreSQLを使います。
+
+例えばこんなテーブルがあったとします。
+```sql
+ CREATE TABLE example (
+      id SERIAL PRIMARY KEY,
+      status VARCHAR(50),
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+```
+
+```sql
+postgres=# INSERT INTO example (status) VALUES
+      ('OK'),
+      ('OK'),
+      ('NG'),
+      ('NG'),
+      ('NG'),
+      ('WAITING'),
+      (NULL),
+      (NULL);
+INSERT 0 8
+
+postgres=# select * from example;
+ id | status  |         created_at
+----+---------+----------------------------
+  1 | OK      | 2026-03-14 21:15:51.257092
+  2 | OK      | 2026-03-14 21:15:51.257092
+  3 | NG      | 2026-03-14 21:15:51.257092
+  4 | NG      | 2026-03-14 21:15:51.257092
+  5 | NG      | 2026-03-14 21:15:51.257092
+  6 | WAITING | 2026-03-14 21:15:51.257092
+  7 |         | 2026-03-14 21:15:51.257092
+  8 |         | 2026-03-14 21:15:51.257092
+(8 rows)
+```
+
+statusがOK以外の値のレコードの総数を知りたいとします。
+最初自分はこんなSQLを書いていました。
+
+```sql
+postgres=# SELECT SUM(CASE WHEN status != 'OK' THEN 1 ELSE 0 END) AS not_ok_count from example;
+ not_ok_count
+--------------
+            4
+(1 row)
+```
+
+おかしいですね。
+NGが3件、WAITINGが1件、NULLが2件なのでnot_ok_countは6件になるはずです。なぜ4件になるのか。
+`SUM(CASE WHEN status != 'OK' THEN 1 ELSE 0 END)`の返却する値に注目する必要があります。
+`status != 'OK'`はstatusがNULLの場合、TRUEでもFALSEでもなくUNKNOWN（NULL）を返します。CASE WHENはUNKNOWNをFALSEとして扱うため、ELSE 0が実行されます。よって、status=NULLの場合は`THEN 1`ではなく0が返り、NULLの2件が結果から間引かれてしまうのです。
+
+この現象を回避するためには以下のようにNULLを考慮したSQLにする必要があります。
+```sql
+postgres=# SELECT SUM(CASE WHEN status != 'OK' OR status IS NULL THEN 1 ELSE 0 END) AS not_ok_count FROM example;
+ not_ok_count
+--------------
+            6
+(1 row)
+```
+
+
+もしくは、`IS DISTINCT FROM`を使うことでもう少しスッキリ書くことも可能です。
+```sql
+SELECT SUM(CASE WHEN status IS DISTINCT FROM 'OK' THEN 1 ELSE 0 END) AS not_ok_count FROM example;
+```
+
+`status IS DISTINCT FROM 'OK'`は「statusが'OK'ではない」を表します。DISTINCTの良いところはNULL値を考慮した上で比較してくれる点です。`OR status IS NULL`のようなNULLのための分岐を書かなくて済みます。
+
+
+# 雑感
+個人的に、アプリケーション開発においてSQL側でCASE WHENなどの条件分岐を使うのはあまり好きではないので極力使わないようにしているのですが、DWHなどのビッグデータの分析をするときなどはどうしてもSQLの世界の中で分岐を書く必要があります。そんな時、こういった落とし穴にハマらないよう気をつけておかないとなあと思いました。
