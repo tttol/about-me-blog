@@ -4,6 +4,7 @@ interface Props {
 }
 
 const { date } = Astro.props;
+const dateOnly = date.split(' ')[0];
 ---
 
-<time>{date}</time>
+<time>{dateOnly}</time>
