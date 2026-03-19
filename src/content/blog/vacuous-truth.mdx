@@ -1,0 +1,55 @@
+---
+title: 'Vacuous Truth - 空虚な真という概念'
+description: ''
+pubDate: '2026/03/19 18:13'
+---
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">「配列のすべての要素が条件を満たすならtrueを返す」関数を定義するとき、空の配列を渡したらfalseを返すかtrueを返すかが、良いプログラマかどうかの一つの境目だ</p>&mdash; ふみ (@fumieval) <a href="https://twitter.com/fumieval/status/1663161595009314819?ref_src=twsrc%5Etfw">May 29, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+一昔前に話題になったこのポストについて、たまに混乱するので改めてブログに整理しておきます。
+
+# 空配列を渡した時の挙動
+まず、答えはtrueです。
+
+![js_every](/images/js_every.png)
+
+直感的にはなんか気持ち悪い気がします。自分は最初に聞いた時falseかな？と思ってしまいました。
+でも、以下の具体例を聞いて納得できました。
+
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">「メールのすべての添付ファイルが安全であれば受信箱に入れる」という処理において、添付ファイルのないメールはどうすべきかを考えれば、自然と答えがイメージしやすい</p>&mdash; ふみ (@fumieval) <a href="https://twitter.com/fumieval/status/1663322995744718848?ref_src=twsrc%5Etfw">May 29, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+# Vacuous Truth - 空虚な真
+これは数学の世界ではVacuous Truth(空虚な真)と呼ばれているようです。
+
+偽となるのは反証が明確に見つかった時であり、空の配列には反証となる要素が存在しないので真とする、という理屈です。
+
+# 混乱する例
+「5教科のそれぞれのテストの点数が80点以上の人が合格」という命題の場合、試験日に欠席してテストを受けなかった人は合格になるのでしょうか？
+Vacuous Truthに従うと合格と判定されます。
+しかし、この例にはそもそも「5教科の試験を全て受験していること」という前提条件が含まれています。
+```ts
+  // 論理学的な実装（vacuous truth が発動する）
+  const passed = scores.every(s => s >= 80); // 空配列 → true
+
+  // 現実に即した実装
+  const passed = scores.length === 5 && scores.every(s => s >= 80);
+  //             ↑ 「5科目全部受けたか」を別途チェック
+```
+
+先ほどのメールの添付ファイルの例はこうした前提条件はなく、単に添付ファイルの安全性だけを条件としていたので、Vacuous Truthにしたがってtrueと判断できました。
+
+こうした前提条件が含まれる場合に、我々は混乱してしまうわけです。
+
+
+つまりVacuous Truthが自然に適用できるかどうかは、空集合が「有効な入力」かどうかによって変わります。
+
+| 例 | ドメインの空集合 | Vacuous Truth適用 |
+|---|---|---|
+| 添付ファイルなしメール | 「添付ファイル」の空集合は有効な入力 | 正しく適用できる |
+| 欠席者の試験 | 「5教科のスコア」が空 = 前提違反の入力 | 適用前に弾くべき |
+
+# まとめ
+- 空配列に対してVacuous Truthが適用されtrueとなる
+- Vacuous Truth自体の性質は変わらない。命題が暗黙の前提条件（受験科目数など）を含む場合は、その前提を明示的にチェックする必要がある
+
+難しい〜〜〜〜
