@@ -1,0 +1,66 @@
+---
+title: 'Claude Codeにcontext windowやrate limitsを常時表示させる'
+description: ''
+pubDate: '2026/03/21 07:28'
+---
+import LinkCard from '../../components/LinkCard.astro';
+
+# TL;DR
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr">Claude Codeのアプデで公式に使用率がステータスラインで取れるようになったので泣きながら書きました<a href="https://t.co/lxWc6LGmfr">https://t.co/lxWc6LGmfr</a></p>&mdash; 逆瀬川 (@gyakuse) <a href="https://twitter.com/gyakuse/status/2034797426285162911?ref_src=twsrc%5Etfw">March 20, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+Xで見かけたこの方法を参考に、自分の好みのstatuslineをカスタマイズしました。
+
+# できたもの
+![/images/cc.png](/images/cc.png)
+こんな感じで、ステータスラインに以下の項目を表示できました。
+
+- cc-statusline: 現在のgitブランチ名
+- Context: コンテキストウィンドウ
+- 5h: 5時間あたり45プロンプトのrate limit
+- 7d: 7日あたり40~80時間のrate limit(Pro, Maxプランによって値は変動します)
+
+# statuslineの仕様
+Claude Codeのステータスラインとは、チャットボックスの真下に表示される領域のことを指します。この領域はユーザー側でカスタマイズすることが可能で、カスタマイズの詳細内容はシェルスクリプトで定義可能です。
+
+
+やり方は.claude/settings.jsonに以下を記載して、
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+  }
+}
+```
+
+~/.claude/statusline.shを以下のフォーマットで作成します。
+
+```sh
+#!/bin/bash
+# Read JSON data that Claude Code sends to stdin
+input=$(cat)
+
+# Extract fields using jq
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+# The "// 0" provides a fallback if the field is null
+PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+
+# Output the status line - ${DIR##*/} extracts just the folder name
+echo "[$MODEL] 📁 ${DIR##*/} | ${PCT}% context"
+```
+
+
+
+# やったこと
+### statusline.shの作成
+### settings.jsonの編集
+### おまけ：Nixでビルドする場合の注意点
+
+# 注意点
+速度
+
+# ref
+<LinkCard url='https://code.claude.com/docs/en/statusline#' />
+
