@@ -121,7 +121,13 @@ const { title, description, pubDate, updatedDate, heroImage, slug } = Astro.prop
 	<script>
 		import mermaid from 'mermaid';
 		mermaid.initialize({ startOnLoad: false, theme: 'dark' });
-		await mermaid.run({ querySelector: '.mermaid' });
+		const elements = document.querySelectorAll('.mermaid');
+		await Promise.all(
+			Array.from(elements).map(async (el, i) => {
+				const { svg } = await mermaid.render(`mermaid-diagram-${i}`, el.textContent.trim());
+				el.innerHTML = svg;
+			})
+		);
 	</script>
 	</body>
 </html>
