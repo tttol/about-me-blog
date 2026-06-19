@@ -28,7 +28,7 @@ body {
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));
-	font-size: 17px;
+	font-size: 12pt;
 	line-height: 1.7;
 }
 main {
@@ -67,6 +67,13 @@ h5 {
 strong,
 b {
 	font-weight: 700;
+}
+.prose strong,
+.prose b {
+	background-color: rgba(255, 221, 64, 0.75);
+	box-decoration-break: clone;
+	color: #404040;
+	-webkit-box-decoration-break: clone;
 }
 a {
 	color: var(--accent);
@@ -129,7 +136,7 @@ hr {
 }
 @media (max-width: 720px) {
 	body {
-		font-size: 17px;
+		font-size: 12pt;
 	}
 	main {
 		padding: 1em;
