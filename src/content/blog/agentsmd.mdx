@@ -1,9 +1,13 @@
 ---
 title: 'AGENTS.mdに何書いてる？'
 description: ''
-pubDate: '2026/09/17 16:35'
+pubDate: '2026/09/18 16:35'
 ---
-2026年9月現在、AGENTS.mdには何を書くべきなんでしょうか。
+import LinkCard from '../../components/LinkCard.astro';
+
+注：この記事ではCodexの~/.codex/AGENTS.mdについて言及しています。Claude CodeでいうところのCLAUDE.mdです。
+
+2026年9月現在、~/.codex/AGENTS.mdには何を書くべきなんでしょうか。
 
 自分はこんな感じのを書いてました。
 
@@ -23,12 +27,14 @@ pubDate: '2026/09/17 16:35'
 
 https://github.com/tttol/dotfiles/pull/13
 
+（※AGENTS.mdからCLAUDE.mdへのシンボリックリンクを貼っているため上記PRではCLAUDE.mdを編集しています）
+
 結果、どうなったか。
 
 特にCodexの回答品質に低下は感じられず、逆にトークン消費が気持ち緩やかになった気がします。
 あくまで「気がする」程度なので、削減前後で記録とって定量的に比較したりはしていません。
 
-# なぜAGENTS.mdを削った？
+## なぜAGENTS.mdを削った？
 そもそもなぜ200行以上も削減することにしたのか？
 
 それはAIモデルの進化に対して自分のAGENTS.mdを全くメンテナンスできてなかったことに今更気づいたからです。
@@ -36,10 +42,49 @@ AGENTS.mdは、そこに記載した内容が毎回のプロンプト送信時�
 
 AIモデルは日々進化します。
 私のAGENTS.md（最初はCLUADE.mdでした）は2025年の7月に作成されています。調べてみると、この頃はOpus 4が主流だったようです。CodexはCLI版がリリースされて2ヶ月ちょっと経過した段階で、o4-miniがデフォルトのモデルでした。
+
 当時のモデルは今（2026年9月）ほど賢くなく、プロンプトやAGENTS.mdで指示をしっかり出さないと意図通りに動いてくれないことが多かったように記憶しています。約一年経った現在、Opus 5, Fable, GPT 5.6, Astraなど高性能モデルが群雄割拠する時代であり、短いプロンプトでも裏の意図を察して賢く振る舞ってくれるようになりました。正直、FableやAstraは賢すぎるので、業務外の個人利用でこれらのモデルを使うシーンはないんじゃないかとさえ思ってしまいます。個人開発やちょっとした調べ物程度なら、GPT 5.6 Lunaで十分です（安いし）。
 
 モデルがかなり賢くなった今、AGENTS.mdにあれこれ指示を書く必要があるのか？
 
 答えは「部分的にそう」だと思ってます。
 
-# Capability skills / Preference skills
+## Capability skills / Preference skills
+以下のPodcastでtwadaさんがcapability skills / preference skillsという言葉を使っていました。
+
+<LinkCard url="https://oss4.fun/episode/96/" />
+
+skillsは大きく分けると以下の2種類に分かれるという話です。
+
+- capability skills：モデルができないことを補うためのskills
+    - 例：過去の会話内容を要約してテキストファイルに保存するskills
+    - 例：長大なmdファイルを画像を含んだHTMLファイルに変換するskills
+- preference skills：個々人が持つ好みの振る舞いをAIに指示するskills
+    - 例：コードレビュー観点を記載したskills
+    - 例：スクリプトを書くときはPythonを利用するよう指示するskills
+
+**そして、capability skillsはモデルの進化とともに不要になっていきます。**
+
+上述の例にあげた2つは、以前はLLMに明示的に指示を与えないと実行してくれませんでしたが、現在はどちらもモデルが学習済みなので指示しなくても勝手にメモリーに会話を保存・解説用の画像/HTMLを生成してくれるようになりました。
+
+一方で、preference skillsはユーザーそれぞれが持つ好みの振る舞いを指示するものです。関数プログラミングを意識してコードレビューをして欲しいとか、スクリプトはPythonで統一して作って欲しいとか、ユーザーが持つ好みに依存します。これらはモデルの進化が進んでも残り続けます。
+
+前章で「部分的にそう」と答えたのは、preference skillsに分類される指示はAGENTS.mdやskillsに記載すべきだが、capability skillsに分類されるものは書かなくて良いからです。
+
+## まとめ
+つまり、OpenAIやAnthropicが新しいモデルをリリースしたら、僕たちは自分のAGENTS.md/CLUADE.md/skillsを見直して、不要になったcapability skillsを削除する必要があります。そうしないと、毎回無駄なcontextをLLMに送ってしまうことになります。
+
+なので、自分は今回AGENTS.mdを200行以上削減しました。
+
+## 余談
+AGENTS.mdにこんなのを書いてます
+```md
+- Answer in English even though you are asked in Japanese unless you are asked to translate.
+```
+
+
+最近英語学習に力を入れていて、その一環としてAIとの会話を全て英語にすることで日常生活で英語に触れる機会を増やしてます。
+
+これが結構自分には合っていて、1ヶ月くらい続いてます。
+
+あとこれは人から聞いた話ですが、LLMが日本語で応答する際は内部で英語→日本語の翻訳をやっているのでトークンを余分に消費したり本来の意図が翻訳の過程で失われたりする可能性があると言ってました。本当かは知らん。
