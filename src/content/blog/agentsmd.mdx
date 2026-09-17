@@ -1,0 +1,45 @@
+---
+title: 'AGENTS.mdに何書いてる？'
+description: ''
+pubDate: '2026/09/17 16:35'
+---
+2026年9月現在、AGENTS.mdには何を書くべきなんでしょうか。
+
+自分はこんな感じのを書いてました。
+
+```md
+- Output source-code comment in English. However, for repositories under ~/Git/, please output comments in Japanese except for `GIVEN`, `WHEN` and `THEN`. These three words mean the test-code pattern `Given-When-Then pattern`. 
+- Do not use trailing spaces in source code.
+- Do not apply empty lines, trailing spaces and tab characters in source code.
+- Always ne conscious about `Don't Repeat Yourself`(DRY) 
+- Always be conscious about `Keep It Simple Stupid!`(KISS) 
+- Write immutable code wherever possible. Variables should not be reassigned after their initial declaration.
+- You should not use global variables. You had better use small-scoped and immutable variables as possible.
+- When introducing a new library, always use the latest version. For libraries already in use, please do not upgrade the version without prior consultation.
+```
+
+ですが、この度AGENTS.mdの内容を思い切って削減し、243行あったAGENTS.mdを3行まで削減しました。
+削った分の大半はskillsに移動させ、一部はskillsにも残さず削除しました。
+
+https://github.com/tttol/dotfiles/pull/13
+
+結果、どうなったか。
+
+特にCodexの回答品質に低下は感じられず、逆にトークン消費が気持ち緩やかになった気がします。
+あくまで「気がする」程度なので、削減前後で記録とって定量的に比較したりはしていません。
+
+# なぜAGENTS.mdを削った？
+そもそもなぜ200行以上も削減することにしたのか？
+
+それはAIモデルの進化に対して自分のAGENTS.mdを全くメンテナンスできてなかったことに今更気づいたからです。
+AGENTS.mdは、そこに記載した内容が毎回のプロンプト送信時にcontextとしてセットで送信されるため、AGENTS.mdの量に比例してcontextを圧迫します。AGENTS.mdに指示を記載すればするほど自分好みに最適化された回答を得る確率が高まりますが、contextの圧迫とのトレードオフの関係にあります。
+
+AIモデルは日々進化します。
+私のAGENTS.md（最初はCLUADE.mdでした）は2025年の7月に作成されています。調べてみると、この頃はOpus 4が主流だったようです。CodexはCLI版がリリースされて2ヶ月ちょっと経過した段階で、o4-miniがデフォルトのモデルでした。
+当時のモデルは今（2026年9月）ほど賢くなく、プロンプトやAGENTS.mdで指示をしっかり出さないと意図通りに動いてくれないことが多かったように記憶しています。約一年経った現在、Opus 5, Fable, GPT 5.6, Astraなど高性能モデルが群雄割拠する時代であり、短いプロンプトでも裏の意図を察して賢く振る舞ってくれるようになりました。正直、FableやAstraは賢すぎるので、業務外の個人利用でこれらのモデルを使うシーンはないんじゃないかとさえ思ってしまいます。個人開発やちょっとした調べ物程度なら、GPT 5.6 Lunaで十分です（安いし）。
+
+モデルがかなり賢くなった今、AGENTS.mdにあれこれ指示を書く必要があるのか？
+
+答えは「部分的にそう」だと思ってます。
+
+# Capability skills / Preference skills
