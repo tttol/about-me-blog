@@ -38,7 +38,7 @@ https://github.com/tttol/dotfiles/pull/13
 そもそもなぜ200行以上も削減することにしたのか？
 
 それはAIモデルの進化に対して自分のAGENTS.mdを全くメンテナンスできてなかったことに今更気づいたからです。
-AGENTS.mdは、そこに記載した内容が毎回のプロンプト送信時にcontextとしてセットで送信されるため、AGENTS.mdの量に比例してcontextを圧迫します。AGENTS.mdに指示を記載すればするほど自分好みに最適化された回答を得る確率が高まりますが、contextの圧迫とのトレードオフの関係にあります。
+AGENTS.mdは、そこに記載した内容がチャット開始時にcontextとしてセットで送信されるため、AGENTS.mdの量に比例してcontextを圧迫します。AGENTS.mdに指示を記載すればするほど自分好みに最適化された回答を得る確率が高まりますが、contextの圧迫とのトレードオフの関係にあります。
 
 AIモデルは日々進化します。
 私のAGENTS.md（最初はCLUADE.mdでした）は2025年の7月に作成されています。調べてみると、この頃はOpus 4が主流だったようです。CodexはCLI版がリリースされて2ヶ月ちょっと経過した段階で、o4-miniがデフォルトのモデルでした。
@@ -72,7 +72,7 @@ skillsは大きく分けると以下の2種類に分かれるという話です�
 前章で「部分的にそう」と答えたのは、preference skillsに分類される指示はAGENTS.mdやskillsに記載すべきだが、capability skillsに分類されるものは書かなくて良いからです。
 
 ## まとめ
-つまり、OpenAIやAnthropicが新しいモデルをリリースしたら、僕たちは自分のAGENTS.md/CLUADE.md/skillsを見直して、不要になったcapability skillsを削除する必要があります。そうしないと、毎回無駄なcontextをLLMに送ってしまうことになります。
+つまり、OpenAIやAnthropicが新しいモデルをリリースしたら、僕たちは自分のAGENTS.md/CLUADE.md/skillsを見直して、不要になったcapability skillsを棚卸しする必要があります。
 
 なので、自分は今回AGENTS.mdを200行以上削減しました。
 
