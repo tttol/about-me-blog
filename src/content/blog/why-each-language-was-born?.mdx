@@ -1,0 +1,59 @@
+---
+title: 'Why each language was born?'
+description: ''
+pubDate: '2026/11/21 06:40'
+---
+
+## Ruby
+1995年にMatzが開発した。
+
+## Ruby on Rails
+2004年にRailsが誕生した。
+
+コンセプトは`Convention over configuration`。つまり「設定よりも規約」。
+
+当時のwebアプリ開発は面倒な作業が多かった。
+- URLパス・HTMLファイル・Controllerクラスを紐づけるための設定
+- DBテーブルとmodelクラスを紐づけるための設定
+
+Railsはこの作業を可能な限り撤廃することを目標とし、ファイル名・ディレクトリ名・クラス名の命名ルールを規約として定めることで規約に沿った書き方をすれば自動で紐づけられる仕組みをRailsに実装した。
+
+```sh
+# Contorollerクラスを生成する
+bin/rails generate controller Notes --skip-routes
+```
+
+```ruby
+class NotesController < ApplicationController
+end
+```
+
+これに対応する`app/views/notes/index.html.erb`というviewを作成することで、Controllerとviewを簡単に紐づけることができる。
+
+
+また、DBまわりにはActive Recordという強力な仕組みがある。
+SQLを書くことなく、簡単なメソッド操作をメインとしてDBの操作が可能になる。
+
+```sh
+# NotesというテーブルとそのEntittyであるNoteクラスを作成する
+bin/rails generate model Note title:string body:text
+bin/rails db:migrate
+```
+
+上記コマンドでテーブルとEntityクラスを作成したら、あとは以下のようにCRUDが可能になる。
+```ruby
+bin/rails console
+note = Note.new(title: "Learn Active Record", body: "Start with persistence.")
+note.persisted? # => false
+note.save!      # => true
+note.persisted? # => true
+practice = Note.create!(title: "Practice note", body: "A disposable example.")
+
+results = Note.where(title: "Learn Active Record").order(id: :desc).limit(5)
+puts results.to_sql
+results.loaded? == true # => false
+results.to_a
+results.loaded?         # => true
+```
+
+
