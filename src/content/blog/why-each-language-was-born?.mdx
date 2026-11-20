@@ -3,57 +3,104 @@ title: 'Why each language was born?'
 description: ''
 pubDate: '2026/11/21 06:40'
 ---
+AI時代に新しいプログラミング言語を学ぶ必要があるのか？
+
+答えはYESです。
+
+コーディング自体はAIに任せることができるようになりました。
+だからと言って人間がプログラミング言語を学ばなくて良い理由にはならないと、自分は思います。
+プログラミング言語が新しく生まれるということは、現存する言語では解決できない課題があって、それを解決するために開発されたということです。言語が誕生した背景と課題を知ることは、AIが台頭した現代においても学ぶに値する行為です。
+
+ということで、本記事では以下の言語にフォーカスして、誕生背景を調べていきます。
+
+- Ruby/Ruby on rails
+- Go
+- Rust
 
 ## Ruby
 1995年にMatzが開発した。
 
 ## Ruby on Rails
-2004年にRailsが誕生した。
+2004年にRailsが誕生しました。
 
 コンセプトは`Convention over configuration`。つまり「設定よりも規約」。
 
-当時のwebアプリ開発は面倒な作業が多かった。
+当時のwebアプリ開発は面倒な作業が多くありました。
 - URLパス・HTMLファイル・Controllerクラスを紐づけるための設定
 - DBテーブルとmodelクラスを紐づけるための設定
 
-Railsはこの作業を可能な限り撤廃することを目標とし、ファイル名・ディレクトリ名・クラス名の命名ルールを規約として定めることで規約に沿った書き方をすれば自動で紐づけられる仕組みをRailsに実装した。
+Railsはこの作業を可能な限り撤廃することを目標とし、ファイル名・ディレクトリ名・クラス名の命名ルールを規約として定めることで規約に沿った書き方をすれば自動で紐づけられる仕組みをRailsに実装しました。
 
 ```sh
-# Contorollerクラスを生成する
-bin/rails generate controller Notes --skip-routes
+# Generate the controller, index action, and view without adding a route.
+bin/rails generate controller Notes index --skip-routes
 ```
 
 ```ruby
+# config/routes.rb (keep any other existing routes inside this block)
+Rails.application.routes.draw do
+  resources :notes, only: [:index]
+end
+
+# app/controllers/notes_controller.rb
 class NotesController < ApplicationController
+  def index
+    @notes = Note.order(id: :desc)
+  end
 end
 ```
 
-これに対応する`app/views/notes/index.html.erb`というviewを作成することで、Controllerとviewを簡単に紐づけることができる。
+これに対応する`app/views/notes/index.html.erb`というviewを作成することで、Controllerとviewを簡単に紐づけることができます。
 
+```erb
+<h1>Notes</h1>
 
-また、DBまわりにはActive Recordという強力な仕組みがある。
-SQLを書くことなく、簡単なメソッド操作をメインとしてDBの操作が可能になる。
-
-```sh
-# NotesというテーブルとそのEntittyであるNoteクラスを作成する
-bin/rails generate model Note title:string body:text
-bin/rails db:migrate
+<ul>
+  <% @notes.each do |note| %>
+    <li>
+      <h2><%= note.title %></h2>
+      <p><%= note.body %></p>
+    </li>
+  <% end %>
+</ul>
 ```
 
-上記コマンドでテーブルとEntityクラスを作成したら、あとは以下のようにCRUDが可能になる。
-```ruby
+また、DBまわりにはActive Recordという強力な仕組みがあります。
+SQLを書くことなく、簡単なメソッド操作をメインとしてDBの操作が可能になります。
+
+```sh
+# Generate the Note model and a migration for the notes table, then apply it.
+bin/rails generate model Note title:string body:text
+bin/rails db:migrate
+
+# Open the Rails console to run the Ruby examples below.
 bin/rails console
+```
+
+上記コマンドでテーブルとEntityクラスを作成したら、あとは以下のようにCRUDが可能になります。
+```ruby
+# Create: new builds an unsaved record; save! persists it.
 note = Note.new(title: "Learn Active Record", body: "Start with persistence.")
 note.persisted? # => false
 note.save!      # => true
 note.persisted? # => true
+
+# create! builds and saves a record in one step.
 practice = Note.create!(title: "Practice note", body: "A disposable example.")
 
+# Read: find one record by its ID or query multiple records.
+Note.find(note.id)
 results = Note.where(title: "Learn Active Record").order(id: :desc).limit(5)
-puts results.to_sql
-results.loaded? == true # => false
-results.to_a
-results.loaded?         # => true
+puts results.to_sql # Show the generated SQL.
+results.to_a        # Load the matching records into an array.
+
+# Update: persist changes to an existing record.
+note.update!(body: "Practice querying and updating records.") # => true
+note.reload.body # => "Practice querying and updating records."
+
+# Delete: remove the disposable record, running destroy callbacks.
+practice.destroy!
+practice.destroyed? # => true
 ```
 
 
