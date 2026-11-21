@@ -1,10 +1,9 @@
 ---
-title: 'Why each language was born?'
+title: 'AI時代に新しいプログラミング言語を学ぶ必要があるのか？'
 description: ''
 pubDate: '2026/11/21 06:40'
 ---
-AI時代に新しいプログラミング言語を学ぶ必要があるのか？
-
+## AI時代に新しいプログラミング言語を学ぶ必要があるのか？
 答えはYESです。
 
 コーディング自体はAIに任せることができるようになりました。
@@ -13,26 +12,23 @@ AI時代に新しいプログラミング言語を学ぶ必要があるのか？
 
 ということで、本記事では以下の言語にフォーカスして、誕生背景を調べていきます。
 
-- Ruby/Ruby on rails
+- Ruby on rails
 - Go
 - Rust
 
 ## Ruby
-1995年にMatzが開発した。
 
 ## Ruby on Rails
-2004年にRailsが誕生しました。
+Ruby on Railsは、Rubyで書かれたWebアプリケーションフレームワークです。David Heinemeier Hansson(DHH)がBasecampの開発で使った基盤を切り出し、2004年に初めて公開しました。
+Ruby自体は、まつもとゆきひろ（Matz）が1993年に開発を始め、1995年に初めて公開しました。
 
 コンセプトは`Convention over configuration`。つまり「設定よりも規約」。
 
-https://rubyonrails.org/doctrine#convention-over-configuration
+ref: https://rubyonrails.org/doctrine#convention-over-configuration
 
-当時のwebアプリ開発は面倒な作業が多くありました。
-- URLパス・HTMLファイル・Controllerクラスを紐づけるための設定
-- DBテーブルとmodelクラスを紐づけるための設定
+Railsでは、命名規約に沿って書くと、アクションが使うビューテンプレートやモデルに対応するテーブルを個別に指定する手間が省けます。リクエストをどのアクションに渡すかは、ルーティングで明示します。
 
-Railsはこの作業を可能な限り撤廃することを目標とし、ファイル名・ディレクトリ名・クラス名の命名ルールを規約として定めることで規約に沿った書き方をすれば自動で紐づけられる仕組みをRailsに実装しました。
-
+ノート一覧を表示する例では、まず `bin/rails generate` でコントローラーとビューのひな形を生成します。
 ```sh
 # Generate the controller, index action, and view without adding a route.
 bin/rails generate controller Notes index --skip-routes
@@ -52,7 +48,7 @@ class NotesController < ApplicationController
 end
 ```
 
-これに対応する`app/views/notes/index.html.erb`というviewを作成することで、Controllerとviewを簡単に紐づけることができます。
+`config/routes.rb` の `resources :notes, only: [:index]` は、`GET /notes` を `NotesController#index` に割り当てます。このアクションでは描画するテンプレートを明示していないため、Railsはコントローラー名とアクション名から `app/views/notes/index.html.erb` を選びます。生成されたテンプレートの中身を次のコードに置き換えます。
 
 ```erb
 <h1>Notes</h1>
@@ -67,8 +63,7 @@ end
 </ul>
 ```
 
-また、DBまわりにはActive Recordという強力な仕組みがあります。
-SQLを書くことなく、簡単なメソッド操作をメインとしてDBの操作が可能になります。
+データベースの読み書きにはActive Recordを使います。Active Recordは、規約に従って単数形のモデル名 `Note` を複数形のテーブル名 `notes` に対応付けます。基本的な読み書きは、SQLを直接書かずにRubyのメソッドで行えます。
 
 ```sh
 # Generate the Note model and a migration for the notes table, then apply it.
@@ -78,6 +73,8 @@ bin/rails db:migrate
 # Open the Rails console to run the Ruby examples below.
 bin/rails console
 ```
+
+マイグレーションを実行したら、別のターミナルで `bin/rails server` を起動し、ブラウザーで `http://localhost:3000/notes` を開くと一覧を確認できます。
 
 上記コマンドでテーブルとEntityクラスを作成したら、あとは以下のようにCRUDが可能になります。
 ```ruby
@@ -120,26 +117,91 @@ practice.destroyed? # => true
 言語仕様を意図的に小さく保ち、誰が書いても似たようなコードになることを目指しました。
 
 並行処理は`goroutine`と`channel`という仕組みで実現しています。
-OSスレッドよりもずっと軽いgoroutineを大量に起動でき、channelを通じてgoroutine同士が安全にデータをやり取りできます。
 
+
+以下は`goroutine`を使ったサンプルコードです。
 ```go
+// Go Concurrency Explained: Go Routines & Channels
+// https://youtu.be/B9uR2gLM80E?si=qbO3h96SEomUGt8B
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+	"time"
+)
 
-func greet(ch chan string) {
-    ch <- "Hello from goroutine"
+func sleep(msg string, ch chan<- string, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	time.Sleep(1000 * time.Millisecond)
+	ch <- fmt.Sprintf("This is the %s", msg);
 }
 
 func main() {
-    ch := make(chan string)
-    go greet(ch) // goroutineとして起動
-    msg := <-ch  // channelから受信
-    fmt.Println(msg)
+	startNow := time.Now()
+
+	msgs := []string{"1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"}
+
+	ch := make(chan string)
+	var wg sync.WaitGroup
+
+	for _, msg := range msgs {
+		wg.Add(1)
+		go sleep(msg, ch, &wg)
+	}
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	for result := range ch {
+		fmt.Println(result)
+	}
+
+	fmt.Println("Duration:", time.Since(startNow))
 }
+
 ```
 
-「ビルドが速い」「並行処理が書きやすい」という特徴がクラウド時代と相性が良く、DockerやKubernetesといったインフラツールの実装言語として広く採用されました。
+```sh
+❯ go run main.go
+This is the 6th
+This is the 8th
+This is the 9th
+This is the 10th
+This is the 7th
+This is the 5th
+This is the 3rd
+This is the 4th
+This is the 2nd
+This is the 1st
+Duration: 1.000751917s
+```
+
+ポイントは、`go func()`で簡単に並行処理を書けるところです。
+
+また、`go func()`でキックされたそれぞれのgoroutineはGo内部にあるスケジューラの管理下に置かれます。
+goroutineにはG, M, Pという3つの構造があります。
+
+ref: https://go.dev/src/runtime/HACKING
+
+- G: ジョブ。goroutineによって実行された処理のひとかたまり
+- M: ワーカー。OSスレッドのこと
+- P: リソース。Gを実行するために必要なresource
+
+例えば、あるジョブG1が発生するとM1とP1がG1のスケジューラによって割り当てられます↓
+
+![gmp1](/images/gmp1.png)
+
+G1がIO待ちなどで待ち状態に入った場合、M1はG1から切り離されて別のジョブG2に割り当てられ、G1の待ちの間にG2のジョブを進めます。このジョブの管理は全てGo内部のスケジューラが行います↓
+
+![gmp2](/images/gmp2.png)
+
+なんだかJavaのVirtual Threadに似てますね。
+
+<iframe class="speakerdeck-iframe" frameborder="0" src="https://speakerdeck.com/player/78bd440779044617bef46868ed5c13fd" title="Virtual Threadsで実現する性能改善" allowfullscreen="true" allow="web-share" style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;" data-ratio="1.7777777777777777"></iframe>
 
 ## Rust
 2015年に1.0がリリースされました（開発が始まったのは2006年）。
