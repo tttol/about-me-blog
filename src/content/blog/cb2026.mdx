@@ -1,0 +1,82 @@
+---
+title: 'Amplify->Lambda Web Functionへの移行'
+description: ''
+pubDate: '2026/12/02 15:25'
+---
+
+- [はじめに](#はじめに)
+- [ASISとTOBE](#asisとtobe)
+  - [ASIS](#asis)
+  - [TOBE](#tobe)
+  - [Changes](#changes)
+    - [API](#api)
+    - [DB](#db)
+- [開発観点での変化](#開発観点での変化)
+  - [開発体験](#開発体験)
+  - [Amplifyのメリットが薄れてきた？](#amplifyのメリットが薄れてきた)
+- [Lambdaというサービスの捉え方](#lambdaというサービスの捉え方)
+- [まとめ](#まとめ)
+
+この記事は[AWS Community Builders Advent Calendar 2026](https://qiita.com/advent-calendar/2026/aws-community-builders)のシリーズ1の2日目の記事です。
+
+
+# はじめに
+AWS Community Builders Advent Calendar 2026ということで、久しぶりに記事を書きます。2024年からCBsをやっていて、2024−2025は登壇・ブログ執筆をコンスタントにやってましたが、今年は色々あってあまりアウトプットできてません。
+
+そんな中で今回取り上げるのはLambda Web Functionです。
+
+https://aws.amazon.com/jp/blogs/news/announcing-aws-lambda-web-functions-for-fast-consistent-web-app-performance-anywhere/
+
+Web Functionを使うことで、Node.jsフレームワークで実装されたwebアプリケーションをLambda上でホスティングすることが可能になります。最初この発表を読んだ時、LambdaってEvent Drivenな関数が主戦場じゃないの？と違和感を覚えました。が、最近のLambdaはDurable FunctionやMicroVMsなど、従来のイメージを塗り替えるような機能を多数リリースしており、これは自分の認識を改めるためにキャッチアップが必要だなあと感じた次第です。
+
+一方で、自分はAWS Amplifyを一時期よく利用しており、Amplifyで作った個人開発アプリがいくつかあります。
+Lambda Web Functionのキャッチアップも兼ねていっちょ移行してみるか！と思い、色々試してみました。以降にその詳細を続けます。
+
+# ASISとTOBE
+ASIS=Amplify, TOBE=Lambda Web Functionです。まずはアーキテクチャ図で変化を見ます。
+
+## ASIS
+![Screenshot 2026-11-26 at 13.24.29.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159675/d3a046a5-ad5d-4c61-9030-50fd7c0a64aa.png)
+## TOBE
+![Screenshot 2026-11-26 at 13.51.15.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159675/47739a8f-a73b-4485-9b1d-ec150ad1f526.png)
+## Changes
+第一印象として、TOBEの方が登場人物が多く複雑に見えますね。
+移行しない方が良かったんじゃないか？と感じるかもしれません。
+詳細に見ていきましょう。
+
+### API
+- AppSync -> API Gateway に変更
+- AmplifyのデフォルトがGraphQL(AppSync)だったのでそれに従った構成にしていた。特にAppSyncにこだわりがあったわけではない。
+- REST APIを使いたかったのでAPI Gatewayに変更できてハッピー
+### DB
+- DynamoDB -> Aurora DSQL に変更
+- AmplifyのデフォルトDBがGraphQL+DynamoDBだったのでそれに従った(ry 
+- RDBMSの方が経験値が豊富なのでAuroraに移行
+- RDSも検討したが、AuroraDSQLが最も安価に運用できそうだったのでこちらを採用
+
+# 開発観点での変化
+## 開発体験
+Amplifyの方が開発体験は良いかなという印象です。
+AmplifyではDEV,STG,PRODごとに独立した環境を容易にAWS上に構築することができるため、開発中の動作検証がスムーズに実施可能です。
+
+https://docs.amplify.aws/react/start/account-setup/
+
+LocalStackなどのモックを挟む必要もなくなるため、本番環境に近い環境で確認が可能です。また、Amplifyはインフラ側のリソース作成を自動化することでアプリ開発者がインフラリソースをほぼ気にすることなく開発に専念できることをコンセプトとしています。
+
+一方で、Lambda Web Functionの場合はAmplifyのような環境分離は容易ではありません。基本的にはDEV,STG,PROD環境をそれぞれ自分でゼロから構築していく必要があります。
+
+## Amplifyのメリットが薄れてきた？
+前述の通りAmplifyはインフラリソースを気にすることなく、各環境の構築も容易に実施できることがメリットです。しかし、このメリットはAI台頭によって薄れてきているようにも感じます。
+
+誤解を恐れずにいうと、仮にインフラの知識がなかったとしてもClaudeCodeなどのコーディングエージェントに要件を伝えてTerraformなりCDKなりでIaCのコードを書いてもらえば、素人でもインフラの構築が可能です。もちろん品質の面で不安はありますが、「インフラが分からなくても調べながらAIと壁打ちすれば一定のクオリティのインフラリソースを構築できる」という時代になっています。
+
+今回私はAmplifyの強みである「インフラを気にせずにアプリ開発に集中できること」を手放して、Lambda Web Functionに移行しました。TOBEのアーキテクチャ図だけみると複雑になっているように見えますが、実際はコーディングエージェントに要件を伝えて、terraformで実装してもらい、CICDからデプロイしただけなので人間目線での手間はあまり変わっていません。
+
+「Amplifyを使って人間の手でコードを書く」vs「コーディングエージェントを使ってアプリ・インフラリソースの両方を実装する」二項対立で比較した時、私はどちらの手間もあまり変わらないのでは？と感じています。
+
+
+# Lambdaというサービスの捉え方
+Lambdaは2014年にGAした老舗サービスで、Event Drivenな関数として広く普及していますがここ最近はそのイメージを塗り替えるが如く多くの機能が追加されています。
+
+
+# まとめ
